@@ -6,6 +6,8 @@ const LIFE_TIME = 1000*60*60*2; // two hours
 const app = express();
 const port =  process.env.PORT || 9080;
 const cors = require('cors');
+var jwt = require('jsonwebtoken');
+var bcrypt = require('bcrypt');
 const SECRET ="JS LOVE";
 
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -52,6 +54,30 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Credentials', true);
     // Pass to next layer of middleware
     next();
+});
+
+
+app.post('/login',(req,res) => {
+    let username = req.body.username;
+    var password = bcrypt.hashSync(req.body.password,6);
+    console.log(password);
+
+    if(username  && password){
+        if(username === 'muthiah' && password === '123456'){
+           let token =  jwt.sign({username:username},
+                SECRET,{expiresIn:24});
+            res.json({
+                success: true,
+                message: 'Authentication successful!',
+                token: token
+            });
+        }
+        else{
+            res.status(404).send({
+                message:'Incorrect Username or Password'
+            })
+        }
+    }
 });
 
 
